@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Jobs\ProcessFiles;
+use App\Jobs\UploadBatch;
 use Illuminate\Support\Facades\Bus;
 
 class UploadController extends Controller
@@ -37,7 +37,7 @@ class UploadController extends Controller
         foreach($files as $file){
             $data = array_map('str_getcsv', file($file));
             // Dispatch upload job
-            $batch->add(new ProcessFiles($data));
+            $batch->add(new UploadBatch($data));
             // Remove temp sliced file 
             unlink($file);
         }
