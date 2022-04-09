@@ -10,11 +10,15 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Product;
+use App\Events\ActionEvent;
+
+
 class UploadBatch implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $data;
+    public $batchId;
 
     /**
      * Create a new job instance.
@@ -48,6 +52,5 @@ class UploadBatch implements ShouldQueue
                 'piece_price' => $row[7],
             ]);
         }
-       
     }
 }

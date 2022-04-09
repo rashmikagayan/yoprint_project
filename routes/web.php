@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UploadController;
-
+use App\Models\Product;
+use App\Events\ActionEvent;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -19,4 +20,3 @@ Route::get('/', function () {
 });
 
 Route::post('/upload', [UploadController::class, 'store']);
-Route::get('/batch', [UploadController::class, 'batch']);

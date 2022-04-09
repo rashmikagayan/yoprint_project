@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Jobs\UploadBatch;
 use Illuminate\Support\Facades\Bus;
+use App\Events\ActionEvent;
 
 class UploadController extends Controller
 {
@@ -24,8 +25,8 @@ class UploadController extends Controller
             file_put_contents($fileName, $part);
         }
         $batchData = $this->processFile();
-        return redirect('/batch?id='.$batchData->id);
-        // return redirect()->back();
+        // return redirect('/batch?id='.$batchData->id);
+        return redirect()->back();
     }
 
     // Process uploaded files
@@ -40,14 +41,15 @@ class UploadController extends Controller
             $batch->add(new UploadBatch($data));
             // Remove temp sliced file 
             unlink($file);
+            
+            $this->listen($batch->id);
         }
         return $batch;
     }
 
-    public function batch(){
-        $batchId = request('id');
-        return Bus::findBatch($batchId);
+    public function listen($batchId){
+        $batchData = Bus::findBatch($batchId);
+        event(new ActionEvent($batchData));   
     }
-
 
 }
