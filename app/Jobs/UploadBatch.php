@@ -11,6 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Product;
 use App\Events\ActionEvent;
+use Illuminate\Support\Facades\Bus;
 
 
 class UploadBatch implements ShouldQueue
@@ -25,9 +26,10 @@ class UploadBatch implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($data)
+    public function __construct($data, $batchId)
     {
         $this->data = $data;
+        $this->batchId = $batchId;
     }
 
     /**
@@ -52,5 +54,11 @@ class UploadBatch implements ShouldQueue
                 'piece_price' => $row[7],
             ]);
         }
+        $this->listen($this->batchId);
+    }
+
+    public function listen($batchId){
+        $batchData = Bus::findBatch($batchId);
+        event(new ActionEvent($batchData));   
     }
 }

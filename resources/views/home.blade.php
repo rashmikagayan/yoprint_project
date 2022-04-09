@@ -48,7 +48,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Test</td>
+                        <td id="test">Test</td>
                         <td>Test</td>
                         <td>Test</td>
                     </tr>
@@ -62,10 +62,20 @@
 
         <script src="{{ asset('js/app.js') }}"></script>
         <script>
-            window.Echo.channel(`action-channel-one`)
-                .listen('ActionEvent', (e) => {
-                    console.log(e);
-                });
+
+            window.Echo.channel(`action-channel-one`).listen("ActionEvent", (response) => {
+                var batchData = response.batchData
+                console.log(batchData.id);
+            });
+
+            function appendToTable(one, two) {
+                $("table").append(`
+                <tr>
+                <td>${one}</td>
+                <td>${two}</td>
+                </tr>
+                `);
+            }
 
                 $(document).ready(function() {
                   $('#dtBasicExample').DataTable({

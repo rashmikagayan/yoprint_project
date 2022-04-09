@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Jobs\UploadBatch;
 use Illuminate\Support\Facades\Bus;
-use App\Events\ActionEvent;
 
 class UploadController extends Controller
 {
@@ -38,18 +37,13 @@ class UploadController extends Controller
         foreach($files as $file){
             $data = array_map('str_getcsv', file($file));
             // Dispatch upload job
-            $batch->add(new UploadBatch($data));
+            $batch->add(new UploadBatch($data, $batch->id));
             // Remove temp sliced file 
-            unlink($file);
-            
-            $this->listen($batch->id);
+            unlink($file);            
         }
         return $batch;
     }
 
-    public function listen($batchId){
-        $batchData = Bus::findBatch($batchId);
-        event(new ActionEvent($batchData));   
-    }
+
 
 }
