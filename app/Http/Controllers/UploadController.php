@@ -28,7 +28,7 @@ class UploadController extends Controller
         $CSVParser = new CSVParser();
         $CSVParser->parseImport($requst->file);
         $batchData = $this->processFile($originalFileName);
-        return redirect()->back();
+        // return redirect()->back();
     }
 
 
