@@ -16,7 +16,7 @@ class CreateProductsTable extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->string('id')->unique();
             $table->string('product_title');
-            $table->string('product_description');
+            $table->longText('product_description');
             $table->string('style');
             $table->string('sanmar_mainframe_color');
             $table->string('size');

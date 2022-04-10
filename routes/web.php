@@ -17,3 +17,4 @@ use App\Events\ActionEvent;
 
 Route::get('/', [UploadController::class, 'index']);
 Route::post('/upload', [UploadController::class, 'store']);
+Route::get('/refresh', [UploadController::class, 'callRefreshEvent']);

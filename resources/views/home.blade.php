@@ -49,13 +49,24 @@
                 <tbody>
                 {{-- Display Jobs --}}
                 {{-- {{ dd($jobs) }} --}}
-                @foreach ($jobs as $job)
-                    {{-- {{ dd($job) }} --}}
+                {{-- @foreach ($jobs as $job)
                     <tr id="{{ $job['BatchId'] }}">
                         <td id="test">{{ $job['CreatedAt'] }}</td>
                         <td id="test">{{ $job['FileName'] }}</td>
+                        @if ($job['PendingJobs']==0)
+                            <td id="test">Completed</td>
+                        @else
+                            <td id="test">Processing</td>
+                        @endif
+                        @if ($job['PendingJobs']==0)
+                            <td id="test">Completed</td>
+                        @elseif ($job['PendingJobs'] > 0 && $job['PendingJobs']==$['TotalJobs'])
+                            <td id="test">Pending</td>
+                        @else
+                            <td id="test">Processing</td>
+                        @endif
                     </tr>
-                @endforeach
+                @endforeach --}}
                 </tbody>
             </table>
         </div>
@@ -66,27 +77,41 @@
 
         <script src="{{ asset('js/app.js') }}"></script>
         <script>
+             $(document).ready(function() {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                });
+                $.ajax({
+                    type: 'GET',
+                    url: "/refresh",
+                    success: function () {
+                    }
+                });
+            });   
 
+            
             window.Echo.channel(`action-channel-one`).listen("ActionEvent", (response) => {
-                var batchData = response.batchData
-                console.log(response);
+                $("#data_table tbody").empty();
+                response.batchData.forEach(data => {
+                    console.log(data);
+                    appendToTable(data.CreatedAt, data.FileName, data.Status);        
+                });
             });
-
-            function appendToTable(one, two) {
-                $("#data_table").append(`
-                <tr>
-                <td>${one}</td>
-                <td>${two}</td>
-                </tr>
-                `);
+            
+            function appendToTable(createdAt, FileName, Status) {
+                var markup = "<tr><td>"+createdAt+"</td><td>"+FileName+"</td><td>"+Status+"</td></tr>";
+                $("#data_table tbody").append(markup);
             }
 
-                $(document).ready(function() {
-                  $('#data_table').DataTable({
-                    "bPaginate": false, //Paginatation can be implemented by removing this
-                    "bFilter": false,   //Search bar can be implemented by removing this
-                  });
+            $(document).ready(function() {
+                $('#data_table').DataTable({
+                "bPaginate": false, //Paginatation can be implemented by removing this
+                "bFilter": false,   //Search bar can be implemented by removing this
+                "order": [[ 0, "desc" ]]
                 });
+            });
         </script>
     </body>
 </html>

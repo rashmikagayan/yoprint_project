@@ -7,6 +7,9 @@ use App\Jobs\UploadBatch;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Bus\Batch;
 use App\Models\FileJobBatches;
+use App\Http\Controllers\CSVParser;
+use App\Events\ActionEvent;
+
 
 class UploadController extends Controller
 {
@@ -20,62 +23,24 @@ class UploadController extends Controller
         $requst->validate([
             'file' => 'required|mimes:csv,txt'
         ]);
-
         $file = file($requst->file->getRealPath());
-        $data = array_slice($file, 1);
         $originalFileName = basename($requst->file->getClientOriginalName(), '.'.$requst->file->getClientOriginalExtension());
-        
-        $parts = (array_chunk($data, 100));
-
-        foreach($parts as $index=>$part){
-            $fileName = resource_path('temp-files/'.date('y-m-d-H-i-s').$index.'.csv');
-            file_put_contents($fileName, $part);
-        }
-        return;
+        $CSVParser = new CSVParser();
+        $CSVParser->parseImport($requst->file);
         $batchData = $this->processFile($originalFileName);
         return redirect()->back();
     }
 
-    public function parseImport(CsvImportRequest $request)
-    {
-
-        $path = $request->file('csv_file')->getRealPath();
-
-        if ($request->has('header')) {
-            $data = Excel::load($path, function($reader) {})->get()->toArray();
-        } else {
-            $data = array_map('str_getcsv', file($path));
-        }
-
-        if (count($data) > 0) {
-            if ($request->has('header')) {
-                $csv_header_fields = [];
-                foreach ($data[0] as $key => $value) {
-                    $csv_header_fields[] = $key;
-                }
-            }
-            $csv_data = array_slice($data, 0, 2);
-
-            $csv_data_file = CsvData::create([
-                'csv_filename' => $request->file('csv_file')->getClientOriginalName(),
-                'csv_header' => $request->has('header'),
-                'csv_data' => json_encode($data)
-            ]);
-        } else {
-            return redirect()->back();
-        }
-
-        return view('import_fields', compact( 'csv_header_fields', 'csv_data', 'csv_data_file'));
-
-    }
 
     // Process uploaded files
     public function processFile($originalFileName){
+        $this->callRefreshEvent();
         $path = resource_path('temp-files/*.csv');
         $files = glob($path);
         $batch = Bus::batch([])
         ->finally(function (Batch $batch) {
             // To notify user via email or etc. project did not require.
+            $this->callRefreshEvent();
         })
         ->dispatch();
         // Iterate each file int the $path
@@ -107,12 +72,31 @@ class UploadController extends Controller
             return [
                 "FileName" => $job['file_name'],
                 "BatchId" => $job['batch_id'],
-                "CreatedAt" => $job['created_at'],
+                "CreatedAt" => date ("Y-d-m H:i", strtotime($job['created_at'])),
                 "TotalJobs" => $job['total_jobs'],
                 "PendingJobs" => $job['pending_jobs'],
+                "Status" => $this->fileStatus($job['pending_jobs'], $job['total_jobs'], $job['failed_jobs'])
             ];
         });
         return $fileJobBatches;
     }
 
+    // Call refresh event upon new file added, batch completed, updated
+    public function callRefreshEvent(){
+        event(new ActionEvent($this->getFileJobBatches())); 
+    }
+
+    public function fileStatus($pending, $total, $failed){
+        if($failed>0){
+            return "Failed";
+        }
+        if($pending==0){
+            return "Completed";
+        }
+        if($pending==$total){
+            return "Pending";
+        }else{
+            return "Processing";
+        }
+    }
 }

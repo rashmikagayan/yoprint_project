@@ -54,13 +54,5 @@ class UploadBatch implements ShouldQueue
                 'piece_price' => $row[7],
             ]);
         }
-        if($this->batch()->finished()){
-            $this->listen($this->batchId);
-        }
-    }
-
-    public function listen($batchId){
-        $batchData = Bus::findBatch($batchId);
-        event(new ActionEvent($batchData));   
     }
 }
