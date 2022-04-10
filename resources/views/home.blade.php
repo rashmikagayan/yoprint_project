@@ -38,7 +38,7 @@
                     <button type="submit" class="btn btn-primary" name="submit">Upload</button>
                 </div>
             </form>
-            <table id="dtBasicExample" cellspacing=0 class="table table-bordered table-hover table-inverse table-striped" width=100%>
+            <table id="data_table" cellspacing=0 class="table table-bordered table-hover table-inverse table-striped" width=100%>
                 <thead>
                     <tr>
                         <th>Time</th>
@@ -47,11 +47,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td id="test">Test</td>
-                        <td>Test</td>
-                        <td>Test</td>
+                {{-- Display Jobs --}}
+                {{-- {{ dd($jobs) }} --}}
+                @foreach ($jobs as $job)
+                    {{-- {{ dd($job) }} --}}
+                    <tr id="{{ $job['BatchId'] }}">
+                        <td id="test">{{ $job['CreatedAt'] }}</td>
+                        <td id="test">{{ $job['FileName'] }}</td>
                     </tr>
+                @endforeach
                 </tbody>
             </table>
         </div>
@@ -65,11 +69,11 @@
 
             window.Echo.channel(`action-channel-one`).listen("ActionEvent", (response) => {
                 var batchData = response.batchData
-                console.log(batchData.id);
+                console.log(response);
             });
 
             function appendToTable(one, two) {
-                $("table").append(`
+                $("#data_table").append(`
                 <tr>
                 <td>${one}</td>
                 <td>${two}</td>
@@ -78,7 +82,7 @@
             }
 
                 $(document).ready(function() {
-                  $('#dtBasicExample').DataTable({
+                  $('#data_table').DataTable({
                     "bPaginate": false, //Paginatation can be implemented by removing this
                     "bFilter": false,   //Search bar can be implemented by removing this
                   });

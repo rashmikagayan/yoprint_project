@@ -15,8 +15,5 @@ use App\Events\ActionEvent;
 |
 */
 
-Route::get('/', function () {
-    return view('home');
-});
-
+Route::get('/', [UploadController::class, 'index']);
 Route::post('/upload', [UploadController::class, 'store']);
