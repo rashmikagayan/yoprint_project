@@ -2085,6 +2085,10 @@ window.Echo.channel("action-channel-one").listen("ActionEvent", function (respon
     var currentTime = new Date(data.CreatedAt).toLocaleString();
     appendToTable(currentTime, data.FileName, data.Status);
   });
+  setTimeElapsed();
+  var intervalId = window.setInterval(function () {
+    setTimeElapsed();
+  }, 5000);
 });
 
 function appendToTable(createdAt, FileName, Status) {
@@ -2134,7 +2138,30 @@ $("#file_upload_form").submit(function (e) {
       loadFiles();
     }
   });
-});
+}); // Time elapsed
+
+var init = function init(date) {
+  var startTime = new Date(date);
+  var seconds = (new Date() - startTime) / 1000;
+  var d = Math.floor(seconds / (3600 * 24));
+  var h = Math.floor(seconds % (3600 * 24) / 3600);
+  var m = Math.floor(seconds % 3600 / 60);
+  var s = Math.floor(seconds % 60);
+  var dDisplay = d > 0 ? d + (d == 1 ? " day, " : " days, ") : "";
+  var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
+  var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes ") : "0 minutes ";
+  var timeElapsed = dDisplay + hDisplay + mDisplay;
+  return timeElapsed;
+};
+
+function setTimeElapsed() {
+  $("#data_table").find("tr").each(function (i, el) {
+    var $tds = $(this).find("td"),
+        createdTime = $tds.eq(0).text();
+    createdTime = createdTime.split("(")[0];
+    $tds.eq(0).text(createdTime + " (" + init(createdTime) + " ago)");
+  });
+}
 
 /***/ }),
 

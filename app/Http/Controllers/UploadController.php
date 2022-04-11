@@ -72,7 +72,7 @@ class UploadController extends Controller
             return [
                 "FileName" => $job['file_name'],
                 "BatchId" => $job['batch_id'],
-                "CreatedAt" => date ("Y-d-m H:i", strtotime($job['created_at'])),
+                "CreatedAt" => date ("m/d/Y H:i", strtotime($job['created_at'])),
                 "TotalJobs" => $job['total_jobs'],
                 "PendingJobs" => $job['pending_jobs'],
                 "Status" => $this->fileStatus($job['pending_jobs'], $job['total_jobs'], $job['failed_jobs'])
