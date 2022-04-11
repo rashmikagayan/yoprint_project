@@ -86,7 +86,6 @@ $("#file_upload_form").submit(function (e) {
         url: "/upload",
         type: "POST",
         data: new FormData(this),
-        processData: false,
         contentType: false,
         success: function (result) {
             loadFiles();
