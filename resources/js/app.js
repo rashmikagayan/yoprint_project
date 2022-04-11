@@ -104,7 +104,7 @@ let init = function (date) {
     var dDisplay = d > 0 ? d + (d == 1 ? " day, " : " days, ") : "";
     var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
     var mDisplay =
-        m > 0 ? m + (m == 1 ? " minute, " : " minutes ") : "0 minutes ";
+        m > 0 ? m + (m == 1 ? " minute " : " minutes ") : "0 minutes ";
     var timeElapsed = dDisplay + hDisplay + mDisplay;
     return timeElapsed;
 };
